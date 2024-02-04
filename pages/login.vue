@@ -3,23 +3,14 @@
     <div class="container">
       <header class="intro">
         <div class="logo-text">resque<span class="logo-dot">.</span></div>
-        <div class="intro-text">Sign up to Resque</div>
+        <div class="intro-text">Sign in to Resque</div>
       </header>
       <form class="form">
-        <div class="form-group">
-          <label class="form-label">Name</label>
-          <InputGroup class="form-field">
-            <InputGroupAddon class="form-addon">
-                <i class="pi pi-user form-icon"></i>
-            </InputGroupAddon>
-            <InputText placeholder="your name" class="form-input" />
-          </InputGroup>
-        </div>
         <div class="form-group">
           <label class="form-label">Email</label>
           <InputGroup class="form-field">
             <InputGroupAddon class="form-addon">
-                <i class="pi pi-envelope form-icon"></i>
+              <i class="pi pi-envelope form-icon"></i>
             </InputGroupAddon>
             <InputText placeholder="your@gmail.com" class="form-input" />
           </InputGroup>
@@ -28,36 +19,67 @@
           <label class="form-label">Password</label>
           <InputGroup class="form-field">
             <InputGroupAddon class="form-addon">
-                <i class="pi pi-lock form-icon"></i>
+              <i class="pi pi-lock form-icon"></i>
             </InputGroupAddon>
-            <InputText type="password" placeholder="your password" class="form-input" />
+            <InputText
+              type="password"
+              placeholder="your password"
+              class="form-input"
+            />
           </InputGroup>
         </div>
         <div class="form-checkbox-container">
           <Checkbox v-model="isChecked" value="checked" />
-          <label for="ingredient1" class="checkbox-label">I agree to the Terms and Conditions.</label>
+          <label class="checkbox-label">Remember me</label>
         </div>
         <InputGroup class="form-field">
-          <Button label="Sign Up" class="form-btn" />
+          <Button label="Sign In" class="form-btn" />
         </InputGroup>
+        <div class="or">
+          <div class="or-line"></div>
+          <span>Or continue using</span>
+        </div>
+        <div class="google-auth-btn-container" @click="login('google')">
+          <div class="google-auth-btn">
+            <img
+              class="google-icon"
+              src="/google_icon.webp"
+              alt="Google Icon"
+              width="35"
+            />
+            Google
+          </div>
+        </div>
       </form>
-      <div class="form-link-container">
-        Already have an account?
-        <NuxtLink class="form-link" to="/">Sign In</NuxtLink>
-      </div>
     </div>
   </AuthLayout>
 </template>
 
 <script setup>
-import InputGroup from 'primevue/inputgroup';
-import InputGroupAddon from 'primevue/inputgroupaddon';
-import Button from 'primevue/button';
-import Checkbox from 'primevue/checkbox';
+import InputGroup from "primevue/inputgroup";
+import InputGroupAddon from "primevue/inputgroupaddon";
+import InputText from "primevue/inputtext";
+import Button from "primevue/button";
+import Checkbox from "primevue/checkbox";
 
-import AuthLayout from '~/layouts/AuthLayout.vue';
+import AuthLayout from "~/layouts/AuthLayout.vue";
 
 let isChecked = ref(false);
+
+const client = useSupabaseClient();
+const user = useSupabaseUser();
+
+watchEffect(() => {
+  if (user.value) {
+    return navigateTo("/");
+  }
+});
+
+const login = async (prov) => {
+  const { data, error } = await client.auth.signInWithOAuth({
+    provider: prov,
+  });
+};
 </script>
 
 <style scoped>
@@ -80,13 +102,13 @@ let isChecked = ref(false);
 .logo-text {
   font-size: 2.5rem !important;
   font-weight: bold;
-  color: #1D1D1F;
+  color: #1d1d1f;
   margin: 2rem;
   position: relative;
 }
 
 .logo-dot {
-  color: #3b82f6; 
+  color: #3b82f6;
   position: absolute;
   font-size: 3rem;
   bottom: 4px;
@@ -105,7 +127,7 @@ let isChecked = ref(false);
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .form-group {
@@ -148,24 +170,69 @@ let isChecked = ref(false);
 .checkbox-label {
   color: #334155;
   font-weight: 500;
-  font-size: 16px;
 }
 
 .form-link-container {
   color: #334155;
   padding-block: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .form-link-container .form-link {
   font-weight: bold;
   transition: color 200ms ease-in-out;
   cursor: pointer;
-  color: #1D1D1F;
+  color: #1d1d1f;
   text-decoration: none;
 }
 
 .form-link-container .form-link:hover {
   color: #06c;
+}
+
+.google-auth-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 50px;
+  border-radius: 5px;
+  border: 1px solid #cbd5e1;
+  transition: all 250ms ease;
+  cursor: pointer;
+  background-color: white;
+  font-weight: 500;
+  color: #334155;
+}
+
+.google-auth-btn:hover {
+  /* background-color: #f9f9f9; */
+  border: 1px solid #94a3b8;
+}
+
+.or {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-block: 0.5rem;
+}
+
+.or span {
+  background: #fff;
+  padding-inline: 1rem;
+  font-size: 16px;
+  color: gray;
+}
+
+.or-line {
+  width: 100%;
+  height: 1px;
+  background: #cbd5e1;
+  position: absolute;
+  z-index: -1;
 }
 
 @media screen and (max-width: 475px) {

@@ -8,13 +8,13 @@
 </template>
 
 <style>
-  .container {
-    height: 100vh;
-  }
+.container {
+  height: 100vh;
+}
 
-  .footer {
-    padding: 1.5rem;
-    font-size: 14px;
-    color: #565656;
-  }
+.footer {
+  padding: 1.5rem;
+  font-size: 14px;
+  color: #565656;
+}
 </style>

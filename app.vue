@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import 'primeicons/primeicons.css'
+import "primeicons/primeicons.css";
 </script>
 
 <style>

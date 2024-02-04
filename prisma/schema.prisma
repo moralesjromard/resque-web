@@ -1,0 +1,30 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Complaints {
+  id             Int      @id @default(autoincrement())
+  userId         String   @unique @db.Uuid
+  status         String   @default("pending")
+  crimeType      String
+  crimeOverview  String   @db.Text
+  respondentName String
+  createdAt      DateTime @default(now())
+}
+
+model DocumentRequest {
+  id           Int      @id @default(autoincrement())
+  userId       String   @unique @db.Uuid
+  status       String   @default("pending")
+  documentType String
+  purpose      String
+  createdAt    DateTime @default(now())
+}

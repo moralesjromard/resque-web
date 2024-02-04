@@ -7,19 +7,26 @@
         <p v-if="$route.path === '/documents'" class="nav-title">Documents</p>
         <p v-if="$route.path === '/chat'" class="nav-title">Chat</p>
       </div>
-      <div class="nav-right" @mouseover="active = true" @mouseleave="active = false">
+      <div
+        class="nav-right"
+        @mouseover="active = true"
+        @mouseleave="active = false"
+      >
         <div class="nav-profile">
-          <Avatar image="https://picsum.photos/200/300" class="avatar" size="medium" shape="circle" style="color: #06c;" />
-          <div class="name">
-            Omar Morales
-          </div>
+          <Avatar
+            image="https://picsum.photos/200/300"
+            class="avatar"
+            size="medium"
+            shape="circle"
+            style="color: #06c"
+          />
+          <div class="name">Omar Morales</div>
           <i class="pi pi-angle-down" />
-          <div class="profile-menu" v-if="active" >
-              <div class="profile-menu-header"></div>
-              <Menu :model="items" />
+          <div class="profile-menu" v-if="active">
+            <div class="profile-menu-header"></div>
+            <Menu :model="items" @click="logout" />
           </div>
         </div>
-        
       </div>
     </div>
   </div>
@@ -28,20 +35,29 @@
 <script setup>
 import { ref } from "vue";
 
-import Avatar from 'primevue/avatar';
-import Menu from 'primevue/menu';
+import Avatar from "primevue/avatar";
+import Menu from "primevue/menu";
+
+const router = useRouter();
 
 const items = ref([
-    { label: 'Profile', icon: 'pi pi-user' },
-    { label: 'Log out', icon: 'pi pi-sign-out' }
+  // { label: "Profile", icon: "pi pi-user" },
+  { label: "Log out", icon: "pi pi-sign-out" },
 ]);
 
-const active = ref(false);
+const client = useSupabaseClient();
+const user = useSupabaseUser();
 
+const logout = async () => {
+  await client.auth.signOut();
+
+  router.push("/login");
+};
+
+const active = ref(false);
 </script>
 
 <style scoped>
-
 .nav {
   display: flex;
   justify-content: center;
@@ -63,9 +79,9 @@ const active = ref(false);
 }
 
 .nav-title {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: bold;
-  color: #1D1D1F;
+  color: #1d1d1f;
   margin: 0;
 }
 
