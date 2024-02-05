@@ -2,7 +2,12 @@
   <div class="sidebar">
     <div class="logo-text">resque<span class="logo-dot">.</span></div>
     <div class="sidebar-item-container">
-      <div v-for="(item, index) in items" class="sidebar-item" :key="index" @click="item.command">
+      <div
+        v-for="(item, index) in items"
+        class="sidebar-item"
+        :key="index"
+        @click="item.command"
+      >
         <i :class="item.icon" />
         <span class="sidebar-item-label">
           {{ item.label }}
@@ -13,39 +18,39 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
 
 const items = ref([
   {
-    icon: 'pi pi-chart-bar', 
-    label: 'Dashboard', 
+    icon: "pi pi-chart-bar",
+    label: "Dashboard",
     command: () => {
-      router.push('/dashboard');
-    }
+      router.push("/");
+    },
   },
   {
-    icon: 'pi pi-book', 
-    label: 'Complaints', 
+    icon: "pi pi-book",
+    label: "Complaints",
     command: () => {
-      router.push('/complaints');
-    }
+      router.push("/complaints");
+    },
   },
   {
-    icon: 'pi pi-file', 
-    label: 'Documents', 
-    command: () =>{
-      router.push('/documents');
-    }
+    icon: "pi pi-file",
+    label: "Documents",
+    command: () => {
+      router.push("/documents");
+    },
   },
   {
-    icon: 'pi pi-comments', 
-    label: 'Chat', 
+    icon: "pi pi-comments",
+    label: "Chat",
     command: () => {
-      router.push('/chat');
-    }
+      router.push("/chat");
+    },
   },
 ]);
 </script>
@@ -54,20 +59,20 @@ const items = ref([
 .sidebar {
   width: 300px;
   padding: 1rem;
-  border-right: 1px solid rgba(0,0,0,0.1);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .logo-text {
   font-size: 2rem !important;
   font-weight: bold;
-  color: #1D1D1F;
+  color: #1d1d1f;
   margin: 0;
   padding-inline: 0.5rem;
   position: relative;
 }
 
 .logo-dot {
-  color: #3b82f6; 
+  color: #3b82f6;
   position: absolute;
   font-size: 3rem;
   bottom: 0;

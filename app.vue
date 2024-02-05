@@ -19,5 +19,6 @@ import "primeicons/primeicons.css";
 
 body {
   margin: 0;
+  overflow: hidden;
 }
 </style>

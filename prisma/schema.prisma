@@ -10,9 +10,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Complaints {
+model Complaint {
   id             Int      @id @default(autoincrement())
-  userId         String   @unique @db.Uuid
+  userId         String   @db.Uuid
   status         String   @default("pending")
   crimeType      String
   crimeOverview  String   @db.Text
@@ -22,7 +22,7 @@ model Complaints {
 
 model DocumentRequest {
   id           Int      @id @default(autoincrement())
-  userId       String   @unique @db.Uuid
+  userId       String   @db.Uuid
   status       String   @default("pending")
   documentType String
   purpose      String

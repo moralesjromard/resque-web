@@ -18,6 +18,8 @@
     "vue-router": "^4.2.5"
   },
   "dependencies": {
+    "@pinia-plugin-persistedstate/nuxt": "^1.2.0",
+    "@pinia/nuxt": "^0.5.1",
     "@prisma/client": "^5.9.1",
     "chart.js": "^4.4.1",
     "pinia": "^2.1.7",

@@ -2,7 +2,7 @@
   <div class="nav">
     <div class="nav-container">
       <div class="nav-left">
-        <p v-if="$route.path === '/dashboard'" class="nav-title">Dashboard</p>
+        <p v-if="$route.path === '/'" class="nav-title">Dashboard</p>
         <p v-if="$route.path === '/complaints'" class="nav-title">Complaints</p>
         <p v-if="$route.path === '/documents'" class="nav-title">Documents</p>
         <p v-if="$route.path === '/chat'" class="nav-title">Chat</p>
@@ -14,17 +14,18 @@
       >
         <div class="nav-profile">
           <Avatar
-            image="https://picsum.photos/200/300"
+            :image="user.user_metadata.picture"
             class="avatar"
             size="medium"
             shape="circle"
             style="color: #06c"
           />
-          <div class="name">Omar Morales</div>
+          <div class="name">{{ user.user_metadata.name }}</div>
           <i class="pi pi-angle-down" />
           <div class="profile-menu" v-if="active">
             <div class="profile-menu-header"></div>
-            <Menu :model="items" @click="logout" />
+            <!-- <Menu :model="items" /> -->
+            <Menu :model="items" v-if="items.label = 'Log out'" @click="logout" />
           </div>
         </div>
       </div>
@@ -41,7 +42,7 @@ import Menu from "primevue/menu";
 const router = useRouter();
 
 const items = ref([
-  // { label: "Profile", icon: "pi pi-user" },
+  { label: "Profile", icon: "pi pi-user" },
   { label: "Log out", icon: "pi pi-sign-out" },
 ]);
 
@@ -88,18 +89,20 @@ const active = ref(false);
 .nav-profile {
   display: flex;
   align-items: center;
-  padding: 0.2rem;
+  padding: 0.4rem;
   border-radius: 50px;
   transition: background-color border 200ms ease-in-out;
   cursor: pointer;
   position: relative;
+  background: #f7f7f7;
+
 }
 .nav-profile:hover {
-  background: #f7f7f7;
+  background: #e8e8e8;
 }
 
 .nav-profile .name {
-  font-weight: 500;
+  font-weight: 400;
   font-size: 16px;
   margin-right: 1rem;
   color: #334155;
@@ -119,7 +122,7 @@ const active = ref(false);
 
 .profile-menu {
   position: absolute;
-  top: 65px;
+  top: 50px;
   z-index: 1;
 }
 

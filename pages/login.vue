@@ -9,18 +9,12 @@
         <div class="form-group">
           <label class="form-label">Email</label>
           <InputGroup class="form-field">
-            <InputGroupAddon class="form-addon">
-              <i class="pi pi-envelope form-icon"></i>
-            </InputGroupAddon>
             <InputText placeholder="your@gmail.com" class="form-input" />
           </InputGroup>
         </div>
         <div class="form-group">
           <label class="form-label">Password</label>
           <InputGroup class="form-field">
-            <InputGroupAddon class="form-addon">
-              <i class="pi pi-lock form-icon"></i>
-            </InputGroupAddon>
             <InputText
               type="password"
               placeholder="your password"
@@ -37,7 +31,7 @@
         </InputGroup>
         <div class="or">
           <div class="or-line"></div>
-          <span>Or continue using</span>
+          <span>Or</span>
         </div>
         <div class="google-auth-btn-container" @click="login('google')">
           <div class="google-auth-btn">
@@ -47,7 +41,7 @@
               alt="Google Icon"
               width="35"
             />
-            Google
+            Sign in with Google
           </div>
         </div>
       </form>
@@ -57,7 +51,6 @@
 
 <script setup>
 import InputGroup from "primevue/inputgroup";
-import InputGroupAddon from "primevue/inputgroupaddon";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import Checkbox from "primevue/checkbox";
@@ -79,6 +72,9 @@ const login = async (prov) => {
   const { data, error } = await client.auth.signInWithOAuth({
     provider: prov,
   });
+  if (error) {
+    console.log(error);
+  }
 };
 </script>
 
@@ -122,7 +118,7 @@ const login = async (prov) => {
 }
 
 .form {
-  width: 450px;
+  width: 430px;
   padding: 2rem;
   border-radius: 10px;
   display: flex;
@@ -145,6 +141,12 @@ const login = async (prov) => {
 .form-field {
   height: 50px;
   width: 100%;
+  /* background: #EFEFEF; */
+  background-color: #f2f5fa;
+  border-radius: 5px;
+  outline: none;
+  box-shadow: 0 0 0px #0557db;
+  transition: all 100ms ease-in-out;
 }
 
 .form-addon {
@@ -153,12 +155,17 @@ const login = async (prov) => {
 
 .form-input {
   padding-inline: 1rem;
+  background-color: transparent;
+  border: none;
+  outline: none;
 }
 
 .form-btn {
   width: 100%;
   border-radius: 50px;
   font-weight: bold;
+  outline: 2px solid #85b2f9;
+  outline-offset: 2px;
 }
 
 .form-checkbox-container {
@@ -172,26 +179,6 @@ const login = async (prov) => {
   font-weight: 500;
 }
 
-.form-link-container {
-  color: #334155;
-  padding-block: 1rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.form-link-container .form-link {
-  font-weight: bold;
-  transition: color 200ms ease-in-out;
-  cursor: pointer;
-  color: #1d1d1f;
-  text-decoration: none;
-}
-
-.form-link-container .form-link:hover {
-  color: #06c;
-}
-
 .google-auth-btn {
   display: flex;
   justify-content: center;
@@ -199,17 +186,15 @@ const login = async (prov) => {
   width: 100%;
   height: 50px;
   border-radius: 5px;
-  border: 1px solid #cbd5e1;
   transition: all 250ms ease;
   cursor: pointer;
-  background-color: white;
+  background-color: #f7f7f7;
   font-weight: 500;
   color: #334155;
 }
 
 .google-auth-btn:hover {
-  /* background-color: #f9f9f9; */
-  border: 1px solid #94a3b8;
+  background-color: #e8e8e8;
 }
 
 .or {
@@ -217,22 +202,25 @@ const login = async (prov) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-block: 0.5rem;
+  padding-block: 0rem;
 }
 
 .or span {
-  background: #fff;
+  background: white;
   padding-inline: 1rem;
   font-size: 16px;
-  color: gray;
+  color: #778496;
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
 }
 
 .or-line {
   width: 100%;
-  height: 1px;
+  height: 2px;
   background: #cbd5e1;
   position: absolute;
-  z-index: -1;
+  z-index: 1;
 }
 
 @media screen and (max-width: 475px) {
