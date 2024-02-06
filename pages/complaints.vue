@@ -2,27 +2,11 @@
   <MainLayout>
     <div class="complaints">
       <div class="data-table-container">
-        <header class="data-table-header">
-          <div class="add-btn-container">
-            <Button class="add-btn" @click="isDialogVisible = true">
-              <i class="pi pi-plus"></i>
-              File complaint
-            </Button>
-          </div>
-          <div class="search-container">
-            <i class="pi pi-search" />
-            <InputText
-              v-model="globalFilter"
-              placeholder="Keyword search."
-              class="search-input"
-            />
-          </div>
-        </header>
         <DataTable
           v-if="complaints"
           v-model:selection="selectedItem"
           :value="filteredData"
-          :rows="10"
+          :rows="5"
           :rowsPerPageOptions="[5, 10, 20, 50]"
           size="large"
           stripedRows
@@ -34,11 +18,29 @@
           class="data-table"
           :globalFilter="globalFilter"
           scrollable
-          scrollHeight="calc(100vh - 220px)"
           columnResizeMode="fit"
+          paginatorPosition="top"
         >
+          <template #paginatorstart>
+            <div class="add-btn-container">
+              <Button class="add-btn" @click="isDialogVisible = true">
+                <i class="pi pi-plus"></i>
+                Add
+              </Button>
+            </div>
+          </template>
+          <template #paginatorend>
+            <div class="search-container">
+              <i class="pi pi-search" />
+              <InputText
+                v-model="globalFilter"
+                placeholder="Keyword search."
+                class="search-input"
+              />
+            </div>
+          </template>
           <Column
-            style="padding-inline: 2rem"
+            style="padding-inline: 4rem"
             field="id"
             header="Id"
             sortable
@@ -48,20 +50,21 @@
           <Column field="crimeOverview" header="Crime overview" style="max-width: 500px; height: auto;">
           </Column>
           <Column header="Status">
-            <template #body="">
-              <Tag value="Pending" />
+            <template #body="slotProps">
+              <div class="status-type">
+                {{ slotProps.data.status }}
+              </div>
             </template>
           </Column>
           <Column
-            style="padding-inline: 2rem"
             field="createdAt"
             header="Created at"
             sortable
           ></Column>
           <template #empty>
             <div class="empty-data-container">
-              <img src="/no-data.png" alt="No data" class="empty-img">
-              <div class="empty-text">No data found.</div>
+              <img src="/no-data-found.png" alt="No data" class="empty-img">
+              <div class="empty-text">No data found</div>
             </div>
           </template>
         </DataTable>
@@ -73,18 +76,15 @@
     v-model:visible="isDialogVisible"
     modal
     header="Add Complaint"
-    style="width: 470px; padding-left: 0.2rem"
+    style="width: 500px; padding: 0.5rem; border-radius: 15px; background: #FFF;"
   >
     <template #header>
       <!-- <i class="pi pi-plus dialog-filecomplaint-icon"></i> -->
-      <span class="dialog-header-text">File complaint</span>
+      <span class="dialog-header-text">File a complaint</span>
     </template>
     <div class="form-group">
       <label class="form-label">Respondent</label>
       <InputGroup class="field-group">
-        <!-- <InputGroupAddon class="form-addon">
-          <i class="pi pi-user form-icon"></i>
-        </InputGroupAddon> -->
         <InputText
           placeholder="Enter respondent"
           class="form-input"
@@ -117,7 +117,10 @@
       </InputGroup>
     </div>
     <div class="dialog-btn-container">
-      <Button class="dialog-btn" @click="onSubmit" autofocus>
+      <Button type="button" class="dialog-btn cancel-btn" @click="isDialogVisible = false" autofocus>
+        Cancel
+      </Button>
+      <Button type="submit" class="dialog-btn" @click="onSubmit" autofocus>
         Submit
       </Button>
     </div>
@@ -175,22 +178,6 @@ const filteredData = computed(() => {
       item.respondentName.toLowerCase().includes(filterText)
   );
 });
-
-const getSeverity = (product) => {
-  switch (product.inventoryStatus) {
-    case "pending":
-      return "info";
-
-    case "scheduled":
-      return "warning";
-
-    case "resolved":
-      return "success";
-
-    default:
-      return null;
-  }
-};
 
 const getComplaints = async () => {
   const res = await $fetch(
@@ -252,8 +239,11 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.data-table {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .data-table-header {
@@ -262,19 +252,14 @@ onMounted(() => {
   align-items: center;
 }
 
-.add-btn-container {
-  padding-inline: 2rem;
-}
-
 .add-btn {
   display: flex;
   gap: 0.5rem;
-  border-radius: 50px;
+  border-radius: 15px;
   text-transform: capitalize;
-  font-weight: 500;
+  font-weight: 600;
   height: 45px;
-  outline: 2px solid #85b2f9;
-  outline-offset: 2px;
+  margin-right: 9rem;
 }
 
 .search-container {
@@ -282,26 +267,23 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   width: fit-content;
-  /* border: 1px solid #94a3b8; */
-  margin-inline: 2rem;
-  margin-block: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   position: relative;
-  background: #f2f5fa;
   border-radius: 5px;
   transition: all 100ms ease-in-out;
+  width: 100%;
+  width: 100%;
+  position: relative;
 }
 
-.search-container:focus-within {
-  box-shadow: 0 0 5px #0557db;
-}
 
 .search-input {
-  outline: none;
-  padding-left: 2.3rem;
+  padding-left: 2.5rem;
   background: transparent;
   border: none;
   border-radius: 5px;
   height: 45px;
+  outline: none;
 }
 
 .pi-search {
@@ -324,47 +306,62 @@ onMounted(() => {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.5rem;
   margin-bottom: 1.5rem;
 }
 
 .form-label {
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   color: #334155;
 }
 
 .form-field {
-  height: 45px;
+  height: 50px;
   width: 100%;
-  background: #f2f5fa;
+  background: #f7f7f7;
 }
 
 .form-input {
-  height: 45px;
+  height: 50px;
   border: none;
-  background: #f2f5fa;
+  background: #f7f7f7;
 }
 
 .dialog-btn-container {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
 }
 
 .dialog-btn {
-  width: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   font-weight: 500;
   height: 50px;
-  border-radius: 50px;
+  border-radius: 5px;
   text-transform: capitalize;
-  font-weight: 500;
+  font-weight: 600;
   padding-inline: 2.5rem;
-  outline: 2px solid #85b2f9;
-  outline-offset: 2px;
   margin-top: 0.5rem;
+  outline: none;
+}
+
+.dialog-btn:focus {
+  outline: none;
+}
+
+.cancel-btn {
+  color: gray;
+  background: transparent;
+  outline: none;
+  border: none;
+  margin-right: 1rem;
+  background: #f7f7f7;
+}
+
+.cancel-btn:hover {
+  background: #e5e5e5;
 }
 
 .dialog-filecomplaint-icon {
@@ -378,11 +375,11 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   border: none;
-  background: #f2f5fa;
+  background: #f7f7f7;
 }
 
 .form-text-input {
-  background: #f2f5fa;
+  background: #f7f7f7;
   padding-block: 0.8rem;
   border: none;
 }
@@ -392,21 +389,44 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  padding-block: 3rem;
-  padding-top: 1.5rem;
+  padding-block: 5rem;
+  padding-bottom: 6rem;
   margin: 0;
 }
 
 .empty-img {
-  width: 200px;
-  height: 200px;
+  width: 250px;
+  height: 250px;
   object-fit: cover;
 }
 
 .empty-text {
   font-size: 1.5rem;
   font-weight: 500;
-  color: #1d1d1f;
-  margin-top: 10px;
+  color: #334155;
+  margin-top: 1.5rem;
+}
+
+.status-type {
+  font-size: 12px;
+  text-transform: capitalize;
+  color: #295bac;
+  background: #d0e1fd;
+  width: fit-content;
+  font-weight: 600;
+  padding: 7px;
+  border-radius: 5px;
+}
+
+.paginator-border {
+  height: 1px;
+  width: 100%;
+  background: red;
+  position: absolute;
+  z-index: 999;
+}
+
+.data-table {
+  border-bottom: none !important;
 }
 </style>

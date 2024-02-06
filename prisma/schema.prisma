@@ -26,5 +26,6 @@ model DocumentRequest {
   status       String   @default("pending")
   documentType String
   purpose      String
+  urgent       String
   createdAt    DateTime @default(now())
 }

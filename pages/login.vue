@@ -2,14 +2,17 @@
   <AuthLayout>
     <div class="container">
       <header class="intro">
-        <div class="logo-text">resque<span class="logo-dot">.</span></div>
+        <div class="logo">
+          <img src="/resque.png" alt="Logo" class="logo-img">
+          <div class="logo-text">resque<span class="logo-dot">.</span></div>
+        </div>
         <div class="intro-text">Sign in to Resque</div>
       </header>
       <form class="form">
         <div class="form-group">
           <label class="form-label">Email</label>
           <InputGroup class="form-field">
-            <InputText placeholder="your@gmail.com" class="form-input" />
+            <InputText placeholder="Your email." class="form-input" />
           </InputGroup>
         </div>
         <div class="form-group">
@@ -17,7 +20,7 @@
           <InputGroup class="form-field">
             <InputText
               type="password"
-              placeholder="your password"
+              placeholder="Your password."
               class="form-input"
             />
           </InputGroup>
@@ -27,7 +30,7 @@
           <label class="checkbox-label">Remember me</label>
         </div>
         <InputGroup class="form-field">
-          <Button label="Sign In" class="form-btn" />
+          <Button class="form-btn">Sign In</Button>
         </InputGroup>
         <div class="or">
           <div class="or-line"></div>
@@ -95,12 +98,29 @@ const login = async (prov) => {
   flex-direction: column;
 }
 
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  right: 10px;
+  margin-block: 1rem;
+}
+
+.logo-img {
+  width: 75px;
+  height: 75px;
+  object-fit: contain;
+  margin: 0;
+}
+
 .logo-text {
-  font-size: 2.5rem !important;
+  font-size: 2.2rem !important;
   font-weight: bold;
   color: #1d1d1f;
-  margin: 2rem;
+  /* margin: 2rem; */
   position: relative;
+  text-transform: capitalize;
 }
 
 .logo-dot {
@@ -109,6 +129,7 @@ const login = async (prov) => {
   font-size: 3rem;
   bottom: 4px;
   right: -15px;
+  display: none;
 }
 
 .container .intro .intro-text {
@@ -118,9 +139,8 @@ const login = async (prov) => {
 }
 
 .form {
-  width: 430px;
+  width: 450px;
   padding: 2rem;
-  border-radius: 10px;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -129,12 +149,12 @@ const login = async (prov) => {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.5rem;
 }
 
 .form-label {
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   color: #334155;
 }
 
@@ -142,7 +162,7 @@ const login = async (prov) => {
   height: 50px;
   width: 100%;
   /* background: #EFEFEF; */
-  background-color: #f2f5fa;
+  background-color: #f7f7f7;
   border-radius: 5px;
   outline: none;
   box-shadow: 0 0 0px #0557db;
@@ -158,14 +178,19 @@ const login = async (prov) => {
   background-color: transparent;
   border: none;
   outline: none;
+  border-radius: 5px;
 }
 
 .form-btn {
   width: 100%;
-  border-radius: 50px;
-  font-weight: bold;
-  outline: 2px solid #85b2f9;
-  outline-offset: 2px;
+  border-radius: 5px;
+  font-weight: 600;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* outline: 2px solid blue; */
+
 }
 
 .form-checkbox-container {
@@ -191,6 +216,7 @@ const login = async (prov) => {
   background-color: #f7f7f7;
   font-weight: 500;
   color: #334155;
+  font-weight: 600;
 }
 
 .google-auth-btn:hover {
@@ -210,14 +236,14 @@ const login = async (prov) => {
   padding-inline: 1rem;
   font-size: 16px;
   color: #778496;
-  font-weight: 500;
+  font-weight: 400;
   position: relative;
   z-index: 1;
 }
 
 .or-line {
   width: 100%;
-  height: 2px;
+  height: 1px;
   background: #cbd5e1;
   position: absolute;
   z-index: 1;

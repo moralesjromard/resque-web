@@ -1,42 +1,38 @@
 <template>
   <div class="main">
-    <Sidebar />
+    <!-- <Sidebar /> -->
     <div class="main-content">
-      <Nav />
-      <div
-        style="
-          overflow: auto;
-          height: calc(100vh - 70px);
-          position: relative;
-        "
-      >
       <ProgressBar
         v-if="userStorage.isLoading"
         mode="indeterminate" 
-        style="height: 3px" 
+        class="progress-bar" 
       />
-        <slot />
+      <div class="main-sub">
+        <Nav />
+        <div style="margin-top: 2rem;">
+          <slot />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 
 import Nav from "~/components/Nav.vue";
 import Sidebar from "~/components/Sidebar.vue";
 
 import { useUserStore } from "~/stores/user";
 import ProgressBar from "primevue/progressbar";
+import Dock from 'primevue/dock';
 
 const visible = ref(true);
 
-const client = useSupabaseClient();
 const user = useSupabaseUser();
 const userStorage = useUserStore();
 
-onMounted(() => {
+onBeforeMount(() => {
   if (!user.value) {
     navigateTo("/login");
   }
@@ -44,21 +40,29 @@ onMounted(() => {
 </script>
 
 <style scoped>
-body {
-  overflow: hidden;
-}
-
 .main {
   height: 100vh;
-  display: flex;
+  display: flex;       
 }
 
 .main-content {
   width: 100%;
+  overflow: auto;
+  position: relative;
 }
 
-.loading-container {
-  background: blue;
-  height: 100%;
+.main-sub {
+  min-width: 1500px;
 }
+.progress-bar {
+  height: 4px; 
+  width: 100%;
+  position: absolute; 
+  right: 0;
+  top: 0; 
+  z-index: 9999;
+}
+
+
+
 </style>

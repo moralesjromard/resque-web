@@ -1,74 +1,36 @@
 <template>
   <MainLayout>
-    <div style="padding: 2rem" class="main">
+    <div class="dashboard">
       <div class="card-container">
         <div class="card">
           <div class="card-content">
             <label class="card-label">Total Complaints</label>
             <span class="card-count">{{ complaintsCount }}</span>
           </div>
-          <div class="card-icon">
-            <i class="pi pi-book" />
-          </div>
+          <img src="/complaints-img.svg" alt="">
         </div>
         <div class="card">
           <div class="card-content">
             <label class="card-label">Total Documents</label>
             <span class="card-count">{{ documentCount }}</span>
           </div>
-          <div class="card-icon card-icon-document">
-            <i class="pi pi-file" />
-          </div>
+          <img src="/documents-img.svg" alt="">
         </div>
       </div>
-      <div class="skeleton-container" v-if="userStorage.isLoading">
-        <div class="skeleton-bar-chart">
-          <Skeleton borderRadius="16px" width="56px" height="75px"></Skeleton>
-          <Skeleton borderRadius="16px" width="56px" height="300px"></Skeleton>
-          <Skeleton borderRadius="16px" width="56px" height="250px"></Skeleton>
-          <Skeleton borderRadius="16px" width="56px" height="100px"></Skeleton>
-          <Skeleton borderRadius="16px" width="56px" height="150px"></Skeleton>
-          <Skeleton borderRadius="16px" width="56px" height="200px"></Skeleton>
-          <Skeleton borderRadius="16px" width="56px" height="300px"></Skeleton>
-          <Skeleton borderRadius="16px" width="56px" height="90px"></Skeleton>
+      <div class="login-history">
+        <p class="login-history-title">Login history</p>
+        <div class="login-history-item">
+          <p class="login-history-description-intro">Your last login was:</p>
+          <p class="login-history-date">Feb 02 2024 at 11:38:21 AM (GMT +8)</p>
         </div>
-
-        <div class="skeleton-doughnut-chart">
-          <Skeleton shape="circle" width="250px" height="250px" class="skeleton-content"></Skeleton>
-        </div>
-      </div>
-      <div class="chart-container" v-else>
-        <div class="bard-chart-container">
-          <Chart
-            type="bar"
-            :data="barChartData"
-            :options="barChartOptions"
-            class="bar-chart"
-          />
-        </div>
-        <div class="doughnut-chart-container">
-          <Chart
-            type="doughnut"
-            :data="doughnutChartData"
-            :options="doughnutOptions"
-            class="doughnut-chart"
-          />
+        <div class="login-history-item">
+          <p class="login-history-description-intro">
+            Your last failed login was:
+          </p>
+          <p class="login-history-date">March 01 2024 at 5:38:21 PM (GMT +8)</p>
         </div>
       </div>
     </div>
-    <!-- <div class="login-history">
-      <p class="login-history-title">Login history</p>
-      <div class="login-history-item">
-        <p class="login-history-description-intro">Your last login was:</p>
-        <p class="login-history-date">Feb 02 2024 at 11:38:21 AM (GMT +8)</p>
-      </div>
-      <div class="login-history-item">
-        <p class="login-history-description-intro">
-          Your last failed login was:
-        </p>
-        <p class="login-history-date">March 01 2024 at 5:38:21 PM (GMT +8)</p>
-      </div>
-    </div> -->
   </MainLayout>
 </template>
 
@@ -76,126 +38,13 @@
 import { ref, onMounted, watchEffect } from "vue";
 
 import MainLayout from "~/layouts/MainLayout.vue";
-import Chart from "primevue/chart";
 import { useUserStore } from "~/stores/user";
-import Skeleton from "primevue/skeleton";
 
 const user = useSupabaseUser();
 const userStorage = useUserStore();
 
 const complaintsCount = ref(0);
 const documentCount = ref(0);
-
-const barChartData = ref();
-const barChartOptions = ref();
-
-const doughnutChartData = ref();
-const doughnutOptions = ref();
-
-const setBarChartData = () => {
-  const documentStyle = getComputedStyle(document.documentElement);
-
-  return {
-    labels: ["February", "March", "April", "May", "June", "July"],
-    datasets: [
-      {
-        label: "Complaints dataset",
-        backgroundColor: documentStyle.getPropertyValue("--cyan-500"),
-        borderColor: documentStyle.getPropertyValue("--cyan-500"),
-        data: [complaintsCount.value, 0, 0, 0, 0,],
-      },
-      {
-        label: "Documents dataset",
-        backgroundColor: documentStyle.getPropertyValue("--gray-500"),
-        borderColor: documentStyle.getPropertyValue("--gray-500"),
-        data: [documentCount.value, 0, 0, 0, 0],
-      },
-    ],
-  };
-};
-
-const setBarChartOptions = () => {
-  const documentStyle = getComputedStyle(document.documentElement);
-  const textColor = documentStyle.getPropertyValue("--text-color");
-  const textColorSecondary = documentStyle.getPropertyValue(
-    "--text-color-secondary"
-  );
-  const surfaceBorder = documentStyle.getPropertyValue("--surface-border");
-
-  return {
-    maintainAspectRatio: false,
-    aspectRatio: 0.8,
-    plugins: {
-      legend: {
-        labels: {
-          color: textColor,
-        },
-      },
-    },
-    scales: {
-      x: {
-        ticks: {
-          color: textColorSecondary,
-          font: {
-            weight: 500,
-          },
-        },
-        grid: {
-          display: false,
-          drawBorder: false,
-        },
-      },
-      y: {
-        ticks: {
-          color: textColorSecondary,
-        },
-        grid: {
-          color: surfaceBorder,
-          drawBorder: false,
-        },
-      },
-    },
-  };
-};
-
-const setDoughnutChartData = () => {
-  const documentStyle = getComputedStyle(document.body);
-
-  return {
-    labels: ["Total complaints", "Total Documents"],
-    datasets: [
-      {
-        data: [complaintsCount.value, documentCount.value],
-        backgroundColor: [
-          documentStyle.getPropertyValue("--cyan-500"),
-          documentStyle.getPropertyValue("--orange-500"),
-          documentStyle.getPropertyValue("--gray-500"),
-        ],
-        hoverBackgroundColor: [
-          documentStyle.getPropertyValue("--cyan-400"),
-          documentStyle.getPropertyValue("--orange-400"),
-          documentStyle.getPropertyValue("--gray-400"),
-        ],
-      },
-    ],
-  };
-};
-
-const setDoughnutChartOptions = () => {
-  const documentStyle = getComputedStyle(document.documentElement);
-  const textColor = documentStyle.getPropertyValue("--text-color");
-
-  return {
-    plugins: {
-      legend: {
-        labels: {
-          cutout: "60%",
-          color: textColor,
-        },
-      },
-    },
-  };
-};
 
 const handleGetComplaintsCount = async () => {
   const res = await $fetch(
@@ -232,12 +81,6 @@ onMounted(() => {
     await handleGetComplaintsCount();
     await handleGetDocumentRequestCount();
 
-    barChartData.value = setBarChartData();
-    barChartOptions.value = setBarChartOptions();
-
-    doughnutChartData.value = setDoughnutChartData();
-    doughnutOptions.value = setDoughnutChartOptions();
-
     userStorage.isLoading = false;
 
   }, 300);
@@ -250,17 +93,22 @@ onMounted(() => {
   gap: 2rem;
 }
 
+.dashboard {
+  padding: 4rem;
+  padding-top: 1rem;
+}
+
 .card {
   background: white;
   width: fit-content;
-  padding: 1.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 2rem;
   flex-direction: row-reverse;
   padding-right: 2.5rem;
+  margin-bottom: 2rem;
+  
 }
 
 .card-content {
@@ -270,7 +118,7 @@ onMounted(() => {
 
 .card-label {
   font-size: 1.3rem;
-  font-weight: 400;
+  font-weight: bold;
   color: #334155;
   margin-bottom: 0.5rem;
 }
@@ -279,54 +127,16 @@ onMounted(() => {
   font-size: 2.5rem;
   font-weight: bold;
   color: #1d1d1f;
-  text-align: center;
-}
-
-.card-icon {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #06c;
-  width: 70px;
-  height: 70px;
-  border-radius: 50px;
-  background: url("/complaint-color2.jpg");
-}
-
-.card-icon-document {
-  background: url("/documentrequest-color.jpg");
-}
-
-.card-icon i {
-  font-size: 2rem;
-  color: #fff;
-}
-
-.chart-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 2rem;
-  width: fit-content;
-  gap: 4rem;
-}
-
-.bar-chart {
-  width: 600px;
-  height: 300px;
-}
-
-.doughnut-chart {
-  width: 300px;
-  height: 300px;
+  text-align: left;
 }
 
 .login-history {
-  padding: 2rem;
+  padding: 0rem;
+  margin-top: 2rem;
 }
 
 .login-history-title {
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: bold;
   color: #1d1d1f;
   margin: 0;
@@ -343,14 +153,14 @@ onMounted(() => {
 .login-history-description-intro {
   margin: 0;
   color: #1d1d1f;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .login-history-date {
   margin: 0;
-  color: #565656;
+  color: gray;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .skeleton-container {

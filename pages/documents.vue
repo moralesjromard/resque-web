@@ -2,22 +2,6 @@
   <MainLayout>
     <div class="documents">
       <div class="data-table-container">
-        <header class="data-table-header">
-          <div class="add-btn-container">
-            <Button class="add-btn" @click="isDialogVisible = true">
-              <i class="pi pi-plus"></i>
-              Request documents
-            </Button>
-          </div>
-          <div class="search-container">
-            <i class="pi pi-search" />
-            <InputText
-              v-model="globalFilter"
-              placeholder="Keyword search."
-              class="search-input"
-            />
-          </div>
-        </header>
         <DataTable
           v-model:selection="selectedItem"
           :value="filteredData"
@@ -25,7 +9,6 @@
           :rowsPerPageOptions="[5, 10, 20, 50]"
           size="large"
           stripedRows
-          paginator
           removableSort
           :metaKeySelection="metaKey"
           dataKey="id"
@@ -35,7 +18,27 @@
           scrollable
           scrollHeight="calc(100vh - 201px)"
           columnResizeMode="fit"
+          paginator
+          paginatorPosition="top"
         >
+          <template #paginatorstart>
+            <div class="add-btn-container">
+              <Button class="add-btn" @click="isDialogVisible = true">
+                <i class="pi pi-plus"></i>
+                Add
+              </Button>
+            </div>
+          </template>
+          <template #paginatorend>
+            <div class="search-container">
+              <i class="pi pi-search" />
+              <InputText
+                v-model="globalFilter"
+                placeholder="Keyword search."
+                class="search-input"
+              />
+            </div>
+          </template>
           <Column
             style="padding-inline: 2rem"
             field="id"
@@ -43,10 +46,14 @@
             sortable
           ></Column>
           <Column field="documentType" header="Document type" sortable></Column>
-          <Column field="purpose" header="Purpose"></Column>
-          <Column header="Status" field="status">
+          <Column field="purpose" header="Purpose" style="max-width: 500px; height: auto;"></Column>
+          <Column field="urgen" header="Urgency level"></Column>
+          <Column header="Status">
             <template #body="slotProps">
-              <Tag :value="slotProps.data.status" style="text-transform: capitalize;" />
+              <!-- <Tag :value="slotProps.data.status" style="text-transform: capitalize;" /> -->
+              <div class="status-type">
+                {{ slotProps.data.status }}
+              </div>
             </template>
           </Column>
           <Column
@@ -57,8 +64,8 @@
           ></Column>
           <template #empty>
             <div class="empty-data-container">
-              <img src="/no-data.png" alt="No data" class="empty-img">
-              <div class="empty-text">No data found.</div>
+              <img src="/no-data-found.png" alt="No data" class="empty-img">
+              <div class="empty-text">No data found</div>
             </div>
           </template>
         </DataTable>
@@ -70,11 +77,11 @@
     v-model:visible="isDialogVisible"
     modal
     header="Add Complaint"
-    style="width: 500px; padding-left: 0.2rem"
+    style="width: 500px; padding: 0.5rem; border-radius: 15px; background-color: white;"
   >
     <template #header>
       <!-- <i class="pi pi-plus dialog-filecomplaint-icon"></i> -->
-      <span class="dialog-header-text">Document request</span>
+      <span class="dialog-header-text">Request a document</span>
     </template>
     <div class="form-group">
       <div class="form-group">
@@ -96,7 +103,20 @@
         />
       </InputGroup>
     </div>
+    <div class="form-group">
+      <label class="form-label">How urgently do you need it?</label>
+      <Dropdown
+        v-model="urgent"
+        :options="urgentList"
+        optionLabel="name"
+        placeholder="Select urgency level"
+        class="dropdown"
+      />
+    </div>
     <div class="dialog-btn-container">
+      <Button type="button" class="dialog-btn cancel-btn" @click="isDialogVisible = false" autofocus>
+        Cancel
+      </Button>
       <Button class="dialog-btn" @click="onSubmit" autofocus>
         Submit
       </Button>
@@ -114,14 +134,11 @@ import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
-import Tag from "primevue/tag";
-import ProgressSpinner from "primevue/progressspinner";
 import Toast from "primevue/toast";
 import { useToast } from "primevue/usetoast";
 
 import MainLayout from "~/layouts/MainLayout.vue";
 import { useUserStore } from "~/stores/user";
-import { complaintsData } from "~/data";
 
 const user = useSupabaseUser();
 const userStorage = useUserStore();
@@ -136,11 +153,18 @@ const isDialogVisible = ref(false);
 
 const documentType = ref("");
 const purpose = ref("");
+const urgent = ref("");
 
 const documentTypes = ref([
   { name: "Permit" },
   { name: "Cedula" },
   { name: "Clearance" },
+]);
+
+const urgentList = ref([
+  { name: "In the next 48 hours" },
+  { name: "Within 1 to 3 weeks" },
+  { name: "Not urgent" },
 ]);
 
 const filteredData = computed(() => {
@@ -151,26 +175,9 @@ const filteredData = computed(() => {
       item.id.toString().includes(filterText) ||
       item.status.toLowerCase().includes(filterText) ||
       item.documentType.toLowerCase().includes(filterText) ||
-      item.purpose.toLowerCase().includes(filterText) ||
-      item.createdAt.toLowerCase().includes(filterText)
+      item.urgent.toLowerCase().includes(filterText)
   );
 });
-
-// const getSeverity = (product) => {
-//   switch (product.inventoryStatus) {
-//     case "pending":
-//       return "info";
-
-//     case "scheduled":
-//       return "warning";
-
-//     case "resolved":
-//       return "success";
-
-//     default:
-//       return null;
-//   }
-// };
 
 const getDocuments = async () => {
   const res = await $fetch(
@@ -192,6 +199,7 @@ const onSubmit = async () => {
     userId: user.value.id,
     documentType: documentType.value.name,
     purpose: purpose.value,
+    urgent: urgent.value.name
   };
   const res = await useFetch(`/api/prisma/add-document-request/`, {
     method: "POST",
@@ -207,8 +215,8 @@ const onSubmit = async () => {
         isDialogVisible.value = false;
         toast.add({ 
           severity: 'success', 
-          summary: 'Complaint submitted successfully', 
-          detail: 'We will review your complaint and respond within 24 hours.', 
+          summary: 'Request submitted successfully', 
+          detail: 'Your document request has been received, and our team will review it promptly. You can expect a response within 24 hours.', 
           life: 7000 
         });
       }, 200)
@@ -231,8 +239,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.data-table {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .data-table-header {
@@ -241,19 +251,14 @@ onMounted(() => {
   align-items: center;
 }
 
-.add-btn-container {
-  padding-inline: 2rem;
-}
-
 .add-btn {
   display: flex;
   gap: 0.5rem;
-  border-radius: 50px;
+  border-radius: 15px;
   text-transform: capitalize;
-  font-weight: 500;
+  font-weight: 600;
   height: 45px;
-  outline: 2px solid #85b2f9;
-  outline-offset: 2px;
+  margin-right: 9rem;
 }
 
 .search-container {
@@ -261,26 +266,23 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   width: fit-content;
-  /* border: 1px solid #94a3b8; */
-  margin-inline: 2rem;
-  margin-block: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   position: relative;
-  background: #f2f5fa;
   border-radius: 5px;
   transition: all 100ms ease-in-out;
+  width: 100%;
+  width: 100%;
+  position: relative;
 }
 
-.search-container:focus-within {
-  box-shadow: 0 0 5px #0557db;
-}
 
 .search-input {
-  outline: none;
-  padding-left: 2.3rem;
+  padding-left: 2.5rem;
   background: transparent;
   border: none;
   border-radius: 5px;
   height: 45px;
+  outline: none;
 }
 
 .pi-search {
@@ -297,55 +299,67 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  /* padding-bottom: 0.5rem; */
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.5rem;
   margin-bottom: 1.5rem;
 }
 
 .form-label {
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   color: #334155;
 }
 
 .form-field {
-  height: 45px;
+  height: 50px;
   width: 100%;
-  background: #f2f5fa;
+  background: #f7f7f7;
 }
 
 .form-input {
-  height: 45px;
+  height: 50px;
   border: none;
-  background: #f2f5fa;
-  transition: all 100ms ease-in-out;
+  background: #f7f7f7;
 }
 
 .dialog-btn-container {
   display: flex;
-  margin: 0;
-  justify-content: center;
+  justify-content: flex-end;
 }
 
 .dialog-btn {
-  width: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   font-weight: 500;
   height: 50px;
-  border-radius: 50px;
+  border-radius: 5px;
   text-transform: capitalize;
-  font-weight: 500;
+  font-weight: 600;
   padding-inline: 2.5rem;
-  outline: 2px solid #85b2f9;
-  outline-offset: 2px;
   margin-top: 0.5rem;
+  outline: none;
+}
+
+.dialog-btn:focus {
+  outline: none;
+}
+
+.cancel-btn {
+  color: gray;
+  background: transparent;
+  outline: none;
+  border: none;
+  margin-right: 1rem;
+  background: #f7f7f7;
+}
+
+.cancel-btn:hover {
+  background: #e5e5e5;
 }
 
 .dialog-filecomplaint-icon {
@@ -359,8 +373,13 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   border: none;
-  background: #f2f5fa;
-  transition: all 100ms ease-in-out;
+  background: #f7f7f7;
+}
+
+.form-text-input {
+  background: #f7f7f7;
+  padding-block: 0.8rem;
+  border: none;
 }
 
 .empty-data-container {
@@ -368,14 +387,14 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  padding-block: 2.5rem;
-  padding-top: 1.5rem;
+  padding-block: 5rem;
+  padding-bottom: 6rem;
   margin: 0;
 }
 
 .empty-img {
-  width: 200px;
-  height: 200px;
+  width: 250px;
+  height: 250px;
   object-fit: cover;
 }
 
@@ -383,6 +402,25 @@ onMounted(() => {
   font-size: 1.5rem;
   font-weight: 500;
   color: #1d1d1f;
-  margin-top: 10px;
+  margin-top: 1.5rem;
+}
+
+.status-type {
+  font-size: 12px;
+  text-transform: capitalize;
+  color: #295bac;
+  background: #d0e1fd;
+  width: fit-content;
+  font-weight: 600;
+  padding: 7px;
+  border-radius: 5px;
+}
+
+.paginator-border {
+  height: 1px;
+  width: 100%;
+  background: red;
+  position: absolute;
+  z-index: 999;
 }
 </style>

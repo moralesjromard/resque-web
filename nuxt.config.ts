@@ -7,7 +7,9 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@pinia-plugin-persistedstate/nuxt",
   ],
-  css: ["primevue/resources/themes/lara-light-blue/theme.css"],
+  css: [
+    "primevue/resources/themes/lara-light-blue/theme.css",
+  ],
   supabase: {
     redirect: false,
   },

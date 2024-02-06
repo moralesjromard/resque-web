@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
       userId: body.userId,
       documentType: body.documentType,
       purpose: body.purpose,
+      urgent: body.urgent,
     },
   });
 

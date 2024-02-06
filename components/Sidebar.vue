@@ -1,6 +1,9 @@
 <template>
   <div class="sidebar">
-    <div class="logo-text">resque<span class="logo-dot">.</span></div>
+    <div class="logo">
+      <img src="/resque.png" alt="Logo" class="logo-img">
+      <div class="logo-text">resque</div>
+    </div>
     <div class="sidebar-item-container">
       <div
         v-for="(item, index) in items"
@@ -45,49 +48,51 @@ const items = ref([
       router.push("/documents");
     },
   },
-  {
-    icon: "pi pi-comments",
-    label: "Chat",
-    command: () => {
-      router.push("/chat");
-    },
-  },
 ]);
 </script>
 
 <style scoped>
 .sidebar {
-  width: 300px;
-  padding: 1rem;
+  min-width: 300px;
+  padding: 1.5rem;
   border-right: 1px solid rgba(0, 0, 0, 0.1);
+  padding-top: 1.5rem;
+}
+
+.logo {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  gap: 0.5rem;
+}
+
+.logo-img {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  margin: 0;
 }
 
 .logo-text {
-  font-size: 2rem !important;
+  font-size: 1.8rem !important;
   font-weight: bold;
   color: #1d1d1f;
-  margin: 0;
-  padding-inline: 0.5rem;
+  /* margin: 2rem; */
   position: relative;
-}
-
-.logo-dot {
-  color: #3b82f6;
-  position: absolute;
-  font-size: 3rem;
-  bottom: 0;
-  transform: translateX(2px);
+  text-transform: capitalize;
 }
 
 .sidebar-item-container {
-  padding-block: 2rem;
+  padding-block: 0.8rem;
 }
 
 .sidebar-item {
   display: flex;
   align-items: center;
   padding: 0.7rem;
-  gap: 0.7rem;
+  padding-inline: 0.9rem;
+  gap: 1.5rem;
   border-radius: 5px;
   transition: background-color 250ms ease-in-out;
   cursor: pointer;

@@ -2,11 +2,18 @@
   <div class="nav">
     <div class="nav-container">
       <div class="nav-left">
-        <p v-if="$route.path === '/'" class="nav-title">Dashboard</p>
-        <p v-if="$route.path === '/complaints'" class="nav-title">Complaints</p>
-        <p v-if="$route.path === '/documents'" class="nav-title">Documents</p>
-        <p v-if="$route.path === '/chat'" class="nav-title">Chat</p>
+        <h1 v-if="$route.path === '/'" class="nav-title">Dashboard</h1>
+        <h1 v-if="$route.path === '/complaints'" class="nav-title">Complaints</h1>
+        <h1 v-if="$route.path === '/documents'" class="nav-title">Documents</h1>
+        <h1 v-if="$route.path === '/chat'" class="nav-title">Chat</h1>
       </div>
+      <Dock :model="dockItems" :position="top" class="dock">
+        <template #icon="{ item }">
+          <NuxtLink :to="item.url" v-tooltip.top="item.label">
+            <img :alt="item.label" :src="item.icon" style="width: 100%;" />
+          </NuxtLink>
+        </template>
+      </Dock>
       <div
         class="nav-right"
         @mouseover="active = true"
@@ -24,7 +31,6 @@
           <i class="pi pi-angle-down" />
           <div class="profile-menu" v-if="active">
             <div class="profile-menu-header"></div>
-            <!-- <Menu :model="items" /> -->
             <Menu :model="items" v-if="items.label = 'Log out'" @click="logout" />
           </div>
         </div>
@@ -38,6 +44,7 @@ import { ref } from "vue";
 
 import Avatar from "primevue/avatar";
 import Menu from "primevue/menu";
+import Sidebar from "~/components/Sidebar.vue";
 
 const router = useRouter();
 
@@ -56,6 +63,24 @@ const logout = async () => {
 };
 
 const active = ref(false);
+
+const dockItems = ref([
+    {
+        label: 'Home',
+        icon: '/dashboard.svg',
+        url: '/'
+    },
+    {
+        label: 'Complaints',
+        icon: '/complaints-img.svg',
+        url: '/complaints',
+    },
+    {
+        label: 'Documents',
+        icon: 'documents-img.svg',
+        url: '/documents',
+    },
+]);
 </script>
 
 <style scoped>
@@ -64,8 +89,7 @@ const active = ref(false);
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 70px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  /* border-bottom: 1px solid rgba(0, 0, 0, 0.1); */
   position: relative;
   z-index: 999;
 }
@@ -75,12 +99,12 @@ const active = ref(false);
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding-inline: 1rem;
-  padding-left: 2rem;
+  padding-inline: 4rem;
+  padding-block: 2.5rem;
 }
 
 .nav-title {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: bold;
   color: #1d1d1f;
   margin: 0;
@@ -90,19 +114,18 @@ const active = ref(false);
   display: flex;
   align-items: center;
   padding: 0.4rem;
-  border-radius: 50px;
+  border-radius: 12px;
   transition: background-color border 200ms ease-in-out;
   cursor: pointer;
   position: relative;
-  background: #f7f7f7;
 
 }
 .nav-profile:hover {
-  background: #e8e8e8;
+  background: #f7f7f7;
 }
 
 .nav-profile .name {
-  font-weight: 400;
+  font-weight: 500;
   font-size: 16px;
   margin-right: 1rem;
   color: #334155;
@@ -122,7 +145,7 @@ const active = ref(false);
 
 .profile-menu {
   position: absolute;
-  top: 50px;
+  top: 60px;
   z-index: 1;
 }
 
@@ -132,5 +155,11 @@ const active = ref(false);
   background: transparent;
   position: absolute;
   top: -30px;
+}
+
+.p-dock-list-container {
+  background: red !important;
+  display: flex;
+  gap: 100px;
 }
 </style>

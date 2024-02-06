@@ -2,15 +2,15 @@
   <div class="container">
     <div class="container-left">
       <slot />
-      <!-- <footer class="footer">
+      <footer class="footer">
         &copy; Copyright 2024, Resque.com, All rights reserved.
-      </footer> -->
+      </footer>
     </div>
     <div class="container-right">
       <img
-        style="width: 100%; height: 100%; object-fit: cover"
         src="/auth-image.png"
         alt="Auth image"
+        class="auth-img"
       />
     </div>
   </div>
@@ -32,20 +32,26 @@
 }
 
 .container-left {
-  flex: 0.3;
   display: flex;
   flex-direction: column;
-  height: 100%;
   background: white;
+  height: 100%;
 }
 
 .container-right {
-  flex: 1;
   height: 100%;
+  width: 100%;
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   background: #f2f6fa;
+  position: relative;
+}
+
+.auth-img {
+  width: 100%; 
+  height: 100%; 
+  object-fit: contain;
 }
 </style>
