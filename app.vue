@@ -14,9 +14,28 @@ import "primeicons/primeicons.css";
 
 * {
   box-sizing: border-box;
-/* font-family: "SF Pro Display", "Inter", "Roboto", sans-serif; */
+  font-family: "SF Pro Display", "Inter", "Roboto", sans-serif;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  user-select: none !important;
+}
+
+/* Style scrollbar */
+::-webkit-scrollbar-thumb {
+  background-color: #959595;
+  border: 4px solid transparent;
+  border-radius: 8px;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #616161;
+}
+
+::-webkit-scrollbar-track {
+  background: hsla(0, 0%, 100%, 0.8);
+}
+
+::-webkit-scrollbar {
+  width: 16px;
 }
 
 body {
@@ -41,13 +60,15 @@ body {
 }
 
 .p-menu {
-  border-radius: 5px;
+  border-radius: 12px !important;
 }
 
 .p-datatable-emptymessage td {
   border: none !important; 
 }
 
-
+.p-toast-message {
+  border-radius: 12px !important;
+}
 
 </style>

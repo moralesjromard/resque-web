@@ -6,10 +6,9 @@
           v-if="complaints"
           v-model:selection="selectedItem"
           :value="filteredData"
-          :rows="5"
+          :rows="10"
           :rowsPerPageOptions="[5, 10, 20, 50]"
           size="large"
-          stripedRows
           paginator
           removableSort
           :metaKeySelection="metaKey"
@@ -23,7 +22,7 @@
         >
           <template #paginatorstart>
             <div class="add-btn-container">
-              <Button class="add-btn" @click="isDialogVisible = true">
+              <Button class="add-btn" @click="isDialogVisible = true" type="button">
                 <i class="pi pi-plus"></i>
                 Add
               </Button>
@@ -60,7 +59,13 @@
             field="createdAt"
             header="Created at"
             sortable
-          ></Column>
+          >
+            <template #body="slotProps">
+              <div>
+                {{ dayjs(slotProps.data.createdAt).format('MMMM D, YYYY, h:mm A') }}
+              </div>
+            </template>
+          </Column>
           <template #empty>
             <div class="empty-data-container">
               <img src="/no-data-found.png" alt="No data" class="empty-img">
@@ -76,35 +81,37 @@
     v-model:visible="isDialogVisible"
     modal
     header="Add Complaint"
-    style="width: 500px; padding: 0.5rem; border-radius: 15px; background: #FFF;"
+    style="width: 490px; padding: 0.5rem; border-radius: 15px; background: #FFF;"
   >
     <template #header>
       <!-- <i class="pi pi-plus dialog-filecomplaint-icon"></i> -->
       <span class="dialog-header-text">File a complaint</span>
     </template>
-    <div class="form-group">
-      <label class="form-label">Respondent</label>
-      <InputGroup class="field-group">
-        <InputText
-          placeholder="Enter respondent"
-          class="form-input"
-          v-model="respondent"
+    <form @submit.prevent="onSubmit">
+      <div class="form-group">
+        <label class="form-label">Respondent</label>
+        <InputGroup class="field-group">
+          <InputText
+            placeholder="Enter respondent"
+            class="form-input"
+            v-model="respondent"
+            required
+          />
+        </InputGroup>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Crime type</label>
+        <Dropdown
+          v-model="crimeType"
+          :options="crimeTypes"
+          optionLabel="name"
+          placeholder="Select crime type"
+          class="dropdown"
+          aria-required="true"
         />
-      </InputGroup>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Crime type</label>
-      <Dropdown
-        v-model="crimeType"
-        :options="crimeTypes"
-        optionLabel="name"
-        placeholder="Select crime type"
-        class="dropdown"
-      />
-    </div>
-    <div class="form-group">
-      <label class="form-label">Crime overview</label>
-      <InputGroup class="field-group">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Crime overview</label>
         <Textarea
           rows="4"
           cols="40"
@@ -113,23 +120,37 @@
           v-model="crimeOverview"
           autoResize
           class="form-text-input"
+          required
         />
-      </InputGroup>
-    </div>
-    <div class="dialog-btn-container">
-      <Button type="button" class="dialog-btn cancel-btn" @click="isDialogVisible = false" autofocus>
-        Cancel
-      </Button>
-      <Button type="submit" class="dialog-btn" @click="onSubmit" autofocus>
-        Submit
-      </Button>
-    </div>
+      </div>
+      <div class="dialog-btn-container">
+        <Button 
+          type="button" 
+          class="dialog-btn cancel-btn" 
+          @click="() => {
+            isDialogVisible = false;
+            respondent = null
+            crimeType = null
+            crimeOverview = null
+          }"
+        >
+          Cancel
+        </Button>
+        <Button 
+          type="submit" 
+          class="dialog-btn" 
+        >
+          Submit
+        </Button>
+      </div>
+    </form>
   </Dialog>
   <Toast position="top-center"  />
 </template>
 
 <script setup>
 import { ref, computed } from "vue";
+import { useDayjs } from '#dayjs'
 
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
@@ -138,8 +159,6 @@ import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
-import Tag from "primevue/tag";
-import ProgressSpinner from "primevue/progressspinner";
 import Toast from "primevue/toast";
 import { useToast } from "primevue/usetoast";
 
@@ -149,6 +168,7 @@ import MainLayout from "~/layouts/MainLayout.vue";
 const user = useSupabaseUser();
 const userStorage = useUserStore();
 const toast = useToast();
+const dayjs = useDayjs();
 
 const complaints = ref([]);
 const selectedItem = ref();
@@ -156,9 +176,9 @@ const metaKey = ref(true);
 const globalFilter = ref("");
 const isDialogVisible = ref(false);
 
-const respondent = ref("");
-const crimeType = ref("");
-const crimeOverview = ref("");
+const respondent = ref(null);
+const crimeType = ref(null);
+const crimeOverview = ref(null);
 
 const crimeTypes = ref([
   { name: "Blotter" },
@@ -194,35 +214,45 @@ const getComplaints = async () => {
 };
 
 const onSubmit = async () => {
-  const payload = {
-    userId: user.value.id,
-    respondent: respondent.value,
-    crimeType: crimeType.value.name,
-    crimeOverview: crimeOverview.value,
-  };
-  const res = await useFetch(`/api/prisma/add-complaint/`, {
-    method: "POST",
-    body: payload,
-  });
+  if (respondent.value && crimeType.value && crimeOverview.value) {
+    const payload = {
+      userId: user.value.id,
+      respondent: respondent.value,
+      crimeType: crimeType.value.name,
+      crimeOverview: crimeOverview.value,
+    };
 
-  try {
-    if (res) {
-      respondent.value = "";
-      crimeType.value = "";
-      crimeOverview.value = "";
-      getComplaints();
-      setTimeout(() => {
-        isDialogVisible.value = false;
-        toast.add({ 
-          severity: 'success', 
-          summary: 'Complaint submitted successfully', 
-          detail: 'We will review your complaint and respond within 24 hours.', 
-          life: 7000 
-        });
-      }, 200)
+    const res = await useFetch(`/api/prisma/add-complaint/`, {
+      method: "POST",
+      body: payload,
+    });
+
+    try {
+      if (res) {
+        respondent.value = "";
+        crimeType.value = "";
+        crimeOverview.value = "";
+        getComplaints();
+        setTimeout(() => {
+          isDialogVisible.value = false;
+          toast.add({ 
+            severity: 'success', 
+            summary: 'Complaint submitted successfully', 
+            detail: 'We will review your complaint and respond within 24 hours.', 
+            life: 5000 
+          });
+        }, 200)
+      }
+    } catch (err) {
+      console.log(err);
     }
-  } catch (err) {
-    console.log(err);
+  } else {
+    toast.add({
+      severity: 'error',
+      summary: 'Error: All Fields Required',
+      detail: 'Please ensure that all fields are filled out before submitting.',
+      life: 5000,
+    });
   }
 };
 
@@ -269,7 +299,7 @@ onMounted(() => {
   width: fit-content;
   border: 1px solid rgba(0, 0, 0, 0.1);
   position: relative;
-  border-radius: 5px;
+  border-radius: 12px;
   transition: all 100ms ease-in-out;
   width: 100%;
   width: 100%;
@@ -281,7 +311,7 @@ onMounted(() => {
   padding-left: 2.5rem;
   background: transparent;
   border: none;
-  border-radius: 5px;
+  border-radius: 12px;
   height: 45px;
   outline: none;
 }
@@ -319,13 +349,13 @@ onMounted(() => {
 .form-field {
   height: 50px;
   width: 100%;
-  background: #f7f7f7;
 }
 
 .form-input {
   height: 50px;
   border: none;
-  background: #f7f7f7;
+  background: #F1F1F1;
+  border-radius: 12px;
 }
 
 .dialog-btn-container {
@@ -339,7 +369,7 @@ onMounted(() => {
   align-items: center;
   font-weight: 500;
   height: 50px;
-  border-radius: 5px;
+  border-radius: 12px;
   text-transform: capitalize;
   font-weight: 600;
   padding-inline: 2.5rem;
@@ -353,15 +383,15 @@ onMounted(() => {
 
 .cancel-btn {
   color: gray;
-  background: transparent;
+  background-color: transparent;
   outline: none;
   border: none;
   margin-right: 1rem;
-  background: #f7f7f7;
+  transition: background-color 200ms ease-in;
 }
 
 .cancel-btn:hover {
-  background: #e5e5e5;
+  background: #F1F1F1;
 }
 
 .dialog-filecomplaint-icon {
@@ -375,13 +405,18 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   border: none;
-  background: #f7f7f7;
+  background: #F1F1F1;
 }
 
 .form-text-input {
-  background: #f7f7f7;
+  background: #F1F1F1;
   padding-block: 0.8rem;
   border: none;
+  border-radius: 12px !important;
+}
+
+.form-text-input::-webkit-scrollbar {
+  display: none;
 }
 
 .empty-data-container {

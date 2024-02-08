@@ -6,6 +6,7 @@ export default defineNuxtConfig({
     "@nuxtjs/supabase",
     "@pinia/nuxt",
     "@pinia-plugin-persistedstate/nuxt",
+    'dayjs-nuxt'
   ],
   css: [
     "primevue/resources/themes/lara-light-blue/theme.css",
@@ -13,13 +14,4 @@ export default defineNuxtConfig({
   supabase: {
     redirect: false,
   },
-  // supabase: {
-  //   url: process.env.SUPABASE_URL,
-  //   key: process.env.SUPABASE_KEY,
-  //   redirectOptions: {
-  //     login: "/login",
-  //     callback: "/confirm",
-  //     exclude: ["/login"],
-  //   },
-  // },
 });

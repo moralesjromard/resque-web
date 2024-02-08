@@ -5,7 +5,7 @@
         <h1 v-if="$route.path === '/'" class="nav-title">Dashboard</h1>
         <h1 v-if="$route.path === '/complaints'" class="nav-title">Complaints</h1>
         <h1 v-if="$route.path === '/documents'" class="nav-title">Documents</h1>
-        <h1 v-if="$route.path === '/chat'" class="nav-title">Chat</h1>
+        <h1 v-if="$route.path === '/profile'" class="nav-title">Profile</h1>
       </div>
       <Dock :model="dockItems" :position="top" class="dock">
         <template #icon="{ item }">
@@ -25,13 +25,25 @@
             class="avatar"
             size="medium"
             shape="circle"
-            style="color: #06c"
           />
           <div class="name">{{ user.user_metadata.name }}</div>
           <i class="pi pi-angle-down" />
           <div class="profile-menu" v-if="active">
             <div class="profile-menu-header"></div>
-            <Menu :model="items" v-if="items.label = 'Log out'" @click="logout" />
+            <Menu :model="items">
+            <template #item="{ item, props }">
+              <div 
+                v-ripple 
+                v-bind="props.action" 
+                class="menu-item" 
+                :class="item.label === 'Log out' && 'logout-text'"
+                @click="item.command"
+              >
+                <i :class="item.icon" />
+                <span class="menu-item-label">{{ item.label }}</span>
+              </div>
+            </template>
+            </Menu>
           </div>
         </div>
       </div>
@@ -44,13 +56,22 @@ import { ref } from "vue";
 
 import Avatar from "primevue/avatar";
 import Menu from "primevue/menu";
-import Sidebar from "~/components/Sidebar.vue";
 
 const router = useRouter();
 
 const items = ref([
-  { label: "Profile", icon: "pi pi-user" },
-  { label: "Log out", icon: "pi pi-sign-out" },
+  { 
+    label: "Profile", 
+    icon: "pi pi-user",
+    command: () => {
+      return router.push('/profile');
+    }
+  },
+  { 
+    label: "Log out", 
+    icon: "pi pi-sign-out",
+    command: () => logout()
+  },
 ]);
 
 const client = useSupabaseClient();
@@ -59,7 +80,7 @@ const user = useSupabaseUser();
 const logout = async () => {
   await client.auth.signOut();
 
-  router.push("/login");
+  router.push('/login')
 };
 
 const active = ref(false);
@@ -158,8 +179,22 @@ const dockItems = ref([
 }
 
 .p-dock-list-container {
-  background: red !important;
   display: flex;
   gap: 100px;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.logout-text {
+  color: rgb(243, 38, 38);
+}
+
+.menu-item-label {
+  font-weight: 500;
 }
 </style>

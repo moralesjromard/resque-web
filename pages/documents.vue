@@ -8,7 +8,6 @@
           :rows="10"
           :rowsPerPageOptions="[5, 10, 20, 50]"
           size="large"
-          stripedRows
           removableSort
           :metaKeySelection="metaKey"
           dataKey="id"
@@ -40,14 +39,14 @@
             </div>
           </template>
           <Column
-            style="padding-inline: 2rem"
+            style="padding-inline: 4rem"
             field="id"
             header="Id"
             sortable
           ></Column>
           <Column field="documentType" header="Document type" sortable></Column>
           <Column field="purpose" header="Purpose" style="max-width: 500px; height: auto;"></Column>
-          <Column field="urgen" header="Urgency level"></Column>
+          <Column field="urgent" header="Urgency level"></Column>
           <Column header="Status">
             <template #body="slotProps">
               <!-- <Tag :value="slotProps.data.status" style="text-transform: capitalize;" /> -->
@@ -57,11 +56,16 @@
             </template>
           </Column>
           <Column
-            style="padding-inline: 2rem"
             field="createdAt"
             header="Created at"
             sortable
-          ></Column>
+          >
+            <template #body="slotProps">
+              <div>
+                {{ dayjs(slotProps.data.createdAt).format('MMMM D, YYYY, h:mm A') }}
+              </div>
+            </template>
+          </Column>
           <template #empty>
             <div class="empty-data-container">
               <img src="/no-data-found.png" alt="No data" class="empty-img">
@@ -77,13 +81,12 @@
     v-model:visible="isDialogVisible"
     modal
     header="Add Complaint"
-    style="width: 500px; padding: 0.5rem; border-radius: 15px; background-color: white;"
+    style="width: 490px; padding: 0.5rem; border-radius: 12px; background-color: white;"
   >
     <template #header>
-      <!-- <i class="pi pi-plus dialog-filecomplaint-icon"></i> -->
       <span class="dialog-header-text">Request a document</span>
     </template>
-    <div class="form-group">
+    <form @submit.prevent="onSubmit">
       <div class="form-group">
         <label class="form-label">Document type</label>
         <Dropdown
@@ -92,41 +95,57 @@
           optionLabel="name"
           placeholder="Select document type"
           class="dropdown"
+          required
         />
       </div>
-      <label class="form-label">Purpose</label>
-      <InputGroup class="field-group">
-        <InputText
-          placeholder="What's your purpose?"
-          class="form-input"
-          v-model="purpose"
+      <div class="form-group">
+        <label class="form-label">Purpose</label>
+        <InputGroup class="field-group">
+          <InputText
+            placeholder="What's your purpose?"
+            class="form-input"
+            v-model="purpose"
+            required
+          />
+        </InputGroup>
+      </div>
+      <div class="form-group">
+        <label class="form-label">How urgently do you need it?</label>
+        <Dropdown
+          v-model="urgent"
+          :options="urgentList"
+          optionLabel="name"
+          placeholder="Select urgency level"
+          class="dropdown"
+          required
         />
-      </InputGroup>
-    </div>
-    <div class="form-group">
-      <label class="form-label">How urgently do you need it?</label>
-      <Dropdown
-        v-model="urgent"
-        :options="urgentList"
-        optionLabel="name"
-        placeholder="Select urgency level"
-        class="dropdown"
-      />
-    </div>
-    <div class="dialog-btn-container">
-      <Button type="button" class="dialog-btn cancel-btn" @click="isDialogVisible = false" autofocus>
-        Cancel
-      </Button>
-      <Button class="dialog-btn" @click="onSubmit" autofocus>
-        Submit
-      </Button>
-    </div>
+      </div>
+      <div class="dialog-btn-container">
+        <Button 
+          type="button" 
+          class="dialog-btn cancel-btn" 
+          @click="() => {
+            isDialogVisible = false;
+            documentType = null;
+            purpose = null;
+            urgent = null;
+          }" 
+          autofocus
+        >
+          Cancel
+        </Button>
+        <Button class="dialog-btn" autofocus type="submit">
+          Submit
+        </Button>
+      </div>
+    </form>
   </Dialog>
-  <Toast position="top-center"  />
+  <Toast position="top-center" />
 </template>
 
 <script setup>
 import { ref, computed } from "vue";
+import { useDayjs } from '#dayjs'
 
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
@@ -142,6 +161,7 @@ import { useUserStore } from "~/stores/user";
 
 const user = useSupabaseUser();
 const userStorage = useUserStore();
+const dayjs = useDayjs();
 
 const toast = useToast();
 
@@ -195,34 +215,44 @@ const getDocuments = async () => {
 };
 
 const onSubmit = async () => {
-  const payload = {
-    userId: user.value.id,
-    documentType: documentType.value.name,
-    purpose: purpose.value,
-    urgent: urgent.value.name
-  };
-  const res = await useFetch(`/api/prisma/add-document-request/`, {
-    method: "POST",
-    body: payload,
-  });
+  if (documentType.value && purpose.value && urgent.value) {
+    const payload = {
+      userId: user.value.id,
+      documentType: documentType.value.name,
+      purpose: purpose.value,
+      urgent: urgent.value.name
+    };
 
-  try {
-    if (res) {
-      documentType.value = "";
-      purpose.value = "";
-      getDocuments();
-      setTimeout(() => {
-        isDialogVisible.value = false;
-        toast.add({ 
-          severity: 'success', 
-          summary: 'Request submitted successfully', 
-          detail: 'Your document request has been received, and our team will review it promptly. You can expect a response within 24 hours.', 
-          life: 7000 
-        });
-      }, 200)
+    const res = await useFetch(`/api/prisma/add-document-request/`, {
+      method: "POST",
+      body: payload,
+    });
+
+    try {
+      if (res) {
+        documentType.value = "";
+        purpose.value = "";
+        getDocuments();
+        setTimeout(() => {
+          isDialogVisible.value = false;
+          toast.add({ 
+            severity: 'success', 
+            summary: 'Request submitted successfully', 
+            detail: 'Your document request has been received, and our team will review it promptly. You can expect a response within 24 hours.', 
+            life: 5000
+          });
+        }, 200)
+      }
+    } catch (err) {
+      console.log(err);
     }
-  } catch (err) {
-    console.log(err);
+  } else {
+    toast.add({
+      severity: 'error',
+      summary: 'Error: All Fields Required',
+      detail: 'Please ensure that all fields are filled out before submitting.',
+      life: 5000,
+    });
   }
 };
 
@@ -239,6 +269,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
+
 .header {
   display: flex;
   align-items: center;
@@ -268,7 +299,7 @@ onMounted(() => {
   width: fit-content;
   border: 1px solid rgba(0, 0, 0, 0.1);
   position: relative;
-  border-radius: 5px;
+  border-radius: 12px;
   transition: all 100ms ease-in-out;
   width: 100%;
   width: 100%;
@@ -280,7 +311,7 @@ onMounted(() => {
   padding-left: 2.5rem;
   background: transparent;
   border: none;
-  border-radius: 5px;
+  border-radius: 12px;
   height: 45px;
   outline: none;
 }
@@ -299,6 +330,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   gap: 1rem;
+  /* padding-bottom: 0.5rem; */
 }
 
 .form-group {
@@ -317,13 +349,13 @@ onMounted(() => {
 .form-field {
   height: 50px;
   width: 100%;
-  background: #f7f7f7;
 }
 
 .form-input {
   height: 50px;
   border: none;
-  background: #f7f7f7;
+  background: #F1F1F1;
+  border-radius: 12px;
 }
 
 .dialog-btn-container {
@@ -337,7 +369,7 @@ onMounted(() => {
   align-items: center;
   font-weight: 500;
   height: 50px;
-  border-radius: 5px;
+  border-radius: 12px;
   text-transform: capitalize;
   font-weight: 600;
   padding-inline: 2.5rem;
@@ -355,11 +387,10 @@ onMounted(() => {
   outline: none;
   border: none;
   margin-right: 1rem;
-  background: #f7f7f7;
 }
 
 .cancel-btn:hover {
-  background: #e5e5e5;
+  background: #F1F1F1;
 }
 
 .dialog-filecomplaint-icon {
@@ -373,13 +404,18 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   border: none;
-  background: #f7f7f7;
+  background: #F1F1F1;
 }
 
 .form-text-input {
-  background: #f7f7f7;
+  background: #F1F1F1;
   padding-block: 0.8rem;
   border: none;
+  border-radius: 12px !important;
+}
+
+.form-text-input::-webkit-scrollbar {
+  display: none;
 }
 
 .empty-data-container {
@@ -401,7 +437,7 @@ onMounted(() => {
 .empty-text {
   font-size: 1.5rem;
   font-weight: 500;
-  color: #1d1d1f;
+  color: #334155;
   margin-top: 1.5rem;
 }
 
@@ -422,5 +458,9 @@ onMounted(() => {
   background: red;
   position: absolute;
   z-index: 999;
+}
+
+.data-table {
+  border-bottom: none !important;
 }
 </style>
