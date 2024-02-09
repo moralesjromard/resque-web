@@ -78,7 +78,7 @@ You can visit the deployed Resque Web Application from the link below:
 
 ```bash
 
-bun https://seashell-app-esy8w.ondigitalocean.app/
+https://seashell-app-esy8w.ondigitalocean.app/
 
 ```
 
