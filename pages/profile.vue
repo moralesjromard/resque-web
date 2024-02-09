@@ -107,7 +107,6 @@
         detail: 'Your password has been changed.', 
         life: 5000 
       });
-      currentPassword = '';
       newPassword.value = '';
       errorMessage.value = null;
     }, 300);

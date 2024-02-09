@@ -94,19 +94,6 @@ const credentialsLogin = async () => {
   }
 }
 
-const handleUpdateUser = async () => {
-  const { data, error } = await client.auth.updateUser({
-    data: {
-      userId: user.value.id,
-      hasPassword: true,
-    }
-  });
-
-  if (error) {
-    console.log('testing');
-  }
-}
-
 const login = async (prov) => {
   const { data, error } = await client.auth.signInWithOAuth({
     provider: prov,
@@ -114,8 +101,6 @@ const login = async (prov) => {
   if (error) {
     return console.log(error);
   }
-
-  await handleUpdateUser();
 };
 </script>
 
