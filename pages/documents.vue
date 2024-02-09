@@ -21,11 +21,24 @@
           paginatorPosition="top"
         >
           <template #paginatorstart>
-            <div class="add-btn-container">
-              <Button class="add-btn" @click="isDialogVisible = true">
-                <i class="pi pi-plus"></i>
-                Add
-              </Button>
+            <div class="header-buttons">
+              <div class="add-btn-container">
+                <Button class="add-btn" @click="isDialogVisible = true" type="button">
+                  <i class="pi pi-plus"></i>
+                  Add
+                </Button>
+              </div>
+              <div class="delete-btn-container">
+                <Button 
+                  :disabled="!isDeletedDisabled" 
+                  class="delete-btn p-button-danger" 
+                  @click="deleteConfirmationDialog"
+                  
+                >
+                  <i class="pi pi-trash" /> 
+                  Delete
+                </Button>
+              </div>
             </div>
           </template>
           <template #paginatorend>
@@ -38,6 +51,7 @@
               />
             </div>
           </template>
+          <Column selectionMode="multiple" headerStyle="width: 3rem" style="padding-inline: 4rem"></Column>
           <Column
             style="padding-inline: 4rem"
             field="id"
@@ -80,8 +94,8 @@
   <Dialog
     v-model:visible="isDialogVisible"
     modal
-    header="Add Complaint"
-    style="width: 490px; padding: 0.5rem; border-radius: 12px; background-color: white;"
+    header="Request documents"
+    style="width: 490px; padding: 0.5rem; border-radius: 5px; background-color: white;"
   >
     <template #header>
       <span class="dialog-header-text">Request a document</span>
@@ -141,6 +155,7 @@
     </form>
   </Dialog>
   <Toast position="top-center" />
+  <ConfirmDialog />
 </template>
 
 <script setup>
@@ -155,6 +170,7 @@ import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
 import Toast from "primevue/toast";
 import { useToast } from "primevue/usetoast";
+import { useConfirm } from "primevue/useconfirm";
 
 import MainLayout from "~/layouts/MainLayout.vue";
 import { useUserStore } from "~/stores/user";
@@ -166,14 +182,16 @@ const dayjs = useDayjs();
 const toast = useToast();
 
 const documents = ref([]);
-const selectedItem = ref();
+const selectedItem = ref([]);
 const metaKey = ref(true);
 const globalFilter = ref("");
 const isDialogVisible = ref(false);
+let isDeletedDisabled = ref(true);
 
 const documentType = ref("");
 const purpose = ref("");
 const urgent = ref("");
+const confirm = useConfirm();
 
 const documentTypes = ref([
   { name: "Permit" },
@@ -199,6 +217,23 @@ const filteredData = computed(() => {
   );
 });
 
+const deleteConfirmationDialog = () => {
+  confirm.require({
+    message: 'Do you want to delete this request?',
+    header: 'Danger Zone',
+    icon: 'pi pi-info-circle',
+    rejectLabel: 'Cancel',
+    acceptLabel: 'Delete',
+    rejectClass: 'p-button-secondary p-button-outlined',
+    acceptClass: 'p-button-danger',
+    accept: () => {
+      deleteSelectedRequest();
+    },
+    reject: () => {
+    }
+  });
+};
+
 const getDocuments = async () => {
   const res = await $fetch(
     `/api/prisma/get-all-documents-by-user/${user.value.id}`
@@ -207,12 +242,36 @@ const getDocuments = async () => {
   try {
     if (res) {
       documents.value = res;
-      console.log(res);
     } 
   } catch (err) {
     console.log(err);
   }
 };
+
+const deleteSelectedRequest = async () => {
+  const selectedIdsArray = selectedItem.value.map(item => item.id);
+
+  const res = await useFetch(`/api/prisma/delete-selected-documents/${selectedIdsArray.join(',')}`, {
+    method: 'DELETE'
+  });
+
+  try {
+    if (res) {
+      setTimeout(() => {
+        getDocuments();
+        toast.add({ 
+          severity: 'success', 
+          summary: 'Request deleted successfully', 
+          detail: 'Your request has been deleted.', 
+          life: 5000 
+        });
+        isDeletedDisabled.value = false;
+      }, 200);
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+}
 
 const onSubmit = async () => {
   if (documentType.value && purpose.value && urgent.value) {
@@ -266,6 +325,16 @@ onMounted(() => {
     userStorage.isLoading = false;
   }, 300);
 });
+
+watchEffect(() => {
+  if (selectedItem.value.length) {
+    isDeletedDisabled.value = true;
+  } else {
+    isDeletedDisabled.value = false;
+  }
+
+});
+
 </script>
 
 <style scoped>
@@ -285,11 +354,11 @@ onMounted(() => {
 .add-btn {
   display: flex;
   gap: 0.5rem;
-  border-radius: 15px;
+  border-radius: 5px;
   text-transform: capitalize;
   font-weight: 600;
   height: 45px;
-  margin-right: 9rem;
+  margin-right: 1rem;
 }
 
 .search-container {
@@ -299,7 +368,7 @@ onMounted(() => {
   width: fit-content;
   border: 1px solid rgba(0, 0, 0, 0.1);
   position: relative;
-  border-radius: 12px;
+  border-radius: 5px;
   transition: all 100ms ease-in-out;
   width: 100%;
   width: 100%;
@@ -311,7 +380,7 @@ onMounted(() => {
   padding-left: 2.5rem;
   background: transparent;
   border: none;
-  border-radius: 12px;
+  border-radius: 5px;
   height: 45px;
   outline: none;
 }
@@ -355,7 +424,7 @@ onMounted(() => {
   height: 50px;
   border: none;
   background: #F1F1F1;
-  border-radius: 12px;
+  border-radius: 5px;
 }
 
 .dialog-btn-container {
@@ -369,7 +438,7 @@ onMounted(() => {
   align-items: center;
   font-weight: 500;
   height: 50px;
-  border-radius: 12px;
+  border-radius: 5px;
   text-transform: capitalize;
   font-weight: 600;
   padding-inline: 2.5rem;
@@ -382,11 +451,12 @@ onMounted(() => {
 }
 
 .cancel-btn {
-  color: gray;
-  background: transparent;
+  color: #64748b;
+  background-color: transparent;
   outline: none;
   border: none;
-  margin-right: 1rem;
+  margin-right: 2rem;
+  transition: background-color 200ms ease-in;
 }
 
 .cancel-btn:hover {
@@ -411,7 +481,7 @@ onMounted(() => {
   background: #F1F1F1;
   padding-block: 0.8rem;
   border: none;
-  border-radius: 12px !important;
+  border-radius: 5px;
 }
 
 .form-text-input::-webkit-scrollbar {
@@ -462,5 +532,25 @@ onMounted(() => {
 
 .data-table {
   border-bottom: none !important;
+}
+
+.delete-btn {
+  display: flex;
+  gap: 0.5rem;
+  border-radius: 5px;
+  text-transform: capitalize;
+  font-weight: 600;
+  height: 45px;
+  margin-right: 1rem;
+  background-color: #e44444;
+  border: none;
+}
+
+.delete-btn:hover {
+  background-color: #DC2626;
+}
+
+.header-buttons {
+  display: flex;
 }
 </style>

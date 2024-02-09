@@ -16,7 +16,6 @@
               size="large"
               shape="circle"
             />
-            <button class="change-profile-btn">Change</button>
           </div>
           <div class="profile-details-text-container">
             <div class="profile-details-label">
@@ -44,52 +43,36 @@
           </h1>
         </div>
         <div class="profile-item-right">
-          <div class="profile-details-text-container">
-            <div class="profile-details-label">
-              Current password
+          <form @submit.prevent="updatePassword">
+            <div class="profile-details-text-container" style="margin-bottom: 0.5rem;">
+              <div class="profile-details-label">
+                New password
+              </div>
+              <InputText
+                type="password"
+                placeholder="Your new password."
+                class="form-input"
+                v-model="newPassword"
+              />
+              <div class="error-text" v-if="errorMessage">
+                {{ errorMessage }}
+              </div>
             </div>
-            <InputText
-              type="password"
-              placeholder="Your current password."
-              class="form-input"
-            />
-          </div>
-          <div class="profile-details-text-container">
-            <div class="profile-details-label">
-              New password
-            </div>
-            <InputText
-              type="password"
-              placeholder="Your new password."
-              class="form-input"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div class="profile-item">
-        <div class="profile-item-left">
-          <h1 class="profile-item-title">
-            Delete account
-          </h1>
-        </div>
-        <div class="profile-item-right">
-          <div class="profile-details-text-container">
-            <div style="font-weight: 600; margin-bottom: 1.5rem;">
-              Delete your account and all of your source data. This is irreversible.
-            </div>
-            <Button class="profile-delete-btn" type="button" @click="deleteAccount">
-              Delete account
-            </Button>
-          </div>
+            <Button class="submit-btn" type="submit">Submit</Button>
+          </form>
         </div>
       </div>
 
     </section>
   </MainLayout>
+  <Toast position="top-center"  />
 </template>
 
 <script setup>
+  import { ref } from 'vue';
+  import Toast from 'primevue/toast';
+  import { useToast } from "primevue/usetoast";
+
   import Avatar from "primevue/avatar";
   import Button from "primevue/button";
 
@@ -100,17 +83,34 @@
 
   const user = useSupabaseUser();
   const client = useSupabaseClient();
+  const toast = useToast();
 
   const userStorage = useUserStore();
 
-  const deleteAccount = async () => {
-    const { data, error } = await client.auth.admin.deleteUser(
-      user.value.id
-    );
+  let newPassword = ref('');
+  let errorMessage = ref(null);
+
+  const updatePassword = async () => {
+    errorMessage.value = null;
+    const { data, error } = await client.auth.updateUser({
+      password: newPassword.value
+    });
 
     if (error) {
-      console.log(error)
-    }
+      return errorMessage.value = error.message
+    } 
+
+    setTimeout(() => {
+      toast.add({ 
+        severity: 'success', 
+        summary: 'Change password successfully', 
+        detail: 'Your password has been changed.', 
+        life: 5000 
+      });
+      currentPassword = '';
+      newPassword.value = '';
+      errorMessage.value = null;
+    }, 300);
   }
 
   onBeforeMount(() => {
@@ -222,4 +222,18 @@
     background-color: #f7f7f7;
     border: none;
   }
+
+  .submit-btn {
+    margin-top: 1rem;
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: 12px;
+  }
+
+  .error-text {
+    font-size: 14px;
+    color: rgb(243, 38, 38);
+    margin-top: 1rem;
+  }
+
 </style>

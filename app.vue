@@ -14,7 +14,7 @@ import "primeicons/primeicons.css";
 
 * {
   box-sizing: border-box;
-  font-family: "SF Pro Display", "Inter", "Roboto", sans-serif;
+  /* font-family: "SF Pro Display", "Inter", "Roboto", sans-serif; */
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
@@ -51,7 +51,7 @@ body {
 }
 
 .p-dropdown {
-  border-radius: 12px;
+  border-radius: 5px;
 }
 /* for primevue pagination */
 
@@ -60,7 +60,7 @@ body {
 }
 
 .p-menu {
-  border-radius: 12px !important;
+  border-radius: 5px !important;
 }
 
 .p-datatable-emptymessage td {
@@ -68,7 +68,15 @@ body {
 }
 
 .p-toast-message {
-  border-radius: 12px !important;
+  border-radius: 5px !important;
+}
+
+.p-confirm-dialog-reject {
+  border: none;
+}
+
+.p-confirm-dialog-reject:hover {
+  background: #F1F1F1;
 }
 
 </style>

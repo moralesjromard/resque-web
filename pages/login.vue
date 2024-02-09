@@ -8,11 +8,11 @@
         </div>
         <div class="intro-text">Sign in to Resque</div>
       </header>
-      <form class="form">
+      <form class="form" @submit.prevent="credentialsLogin">
         <div class="form-group">
           <label class="form-label">Email</label>
           <InputGroup class="form-field">
-            <InputText placeholder="Your email." class="form-input" />
+            <InputText placeholder="Your email." class="form-input" v-model="email" />
           </InputGroup>
         </div>
         <div class="form-group">
@@ -22,15 +22,19 @@
               type="password"
               placeholder="Your password."
               class="form-input"
+              v-model="password"
             />
           </InputGroup>
         </div>
-        <div class="form-checkbox-container">
+        <!-- <div class="form-checkbox-container">
           <Checkbox v-model="isChecked" value="checked" />
           <label class="checkbox-label">Remember me</label>
+        </div> -->
+        <div class="error-text" v-if="errorMessage">
+          {{ errorMessage }}
         </div>
         <InputGroup class="form-field">
-          <Button class="form-btn">Sign In</Button>
+          <Button class="form-btn" type="submit">Sign In</Button>
         </InputGroup>
         <div class="or">
           <div class="or-line"></div>
@@ -53,6 +57,8 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
+
 import InputGroup from "primevue/inputgroup";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
@@ -65,19 +71,51 @@ let isChecked = ref(false);
 const client = useSupabaseClient();
 const user = useSupabaseUser();
 
+const email = ref('');
+const password = ref('');
+const errorMessage = ref(null);
+
 watchEffect(() => {
   if (user.value) {
     return navigateTo("/");
   }
 });
 
+const credentialsLogin = async () => {
+  errorMessage.value = null;
+
+  const { data, error } = await client.auth.signInWithPassword({
+    email: email.value,
+    password: password.value,
+  });
+
+  if (error) {
+    errorMessage.value = error.message;
+  }
+}
+
+const handleUpdateUser = async () => {
+  const { data, error } = await client.auth.updateUser({
+    data: {
+      userId: user.value.id,
+      hasPassword: true,
+    }
+  });
+
+  if (error) {
+    console.log('testing');
+  }
+}
+
 const login = async (prov) => {
   const { data, error } = await client.auth.signInWithOAuth({
     provider: prov,
   });
   if (error) {
-    console.log(error);
+    return console.log(error);
   }
+
+  await handleUpdateUser();
 };
 </script>
 
@@ -246,6 +284,11 @@ const login = async (prov) => {
   background: #cbd5e1;
   position: absolute;
   z-index: 1;
+}
+
+.error-text {
+  font-size: 14px;
+  color: rgb(243, 38, 38);
 }
 
 @media screen and (max-width: 475px) {
