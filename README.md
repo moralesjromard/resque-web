@@ -73,3 +73,12 @@ bun run preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+You can visit the deployed Resque Web Application from the link below:
+
+```bash
+
+bun https://seashell-app-esy8w.ondigitalocean.app/
+
+```
+
