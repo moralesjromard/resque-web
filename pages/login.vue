@@ -201,7 +201,7 @@ const login = async (prov) => {
   width: 100%;
   /* background: #EFEFEF; */
   background-color: #f7f7f7;
-  border-radius: 12px;
+  border-radius: 5px;
   box-shadow: 0 0 0px #0557db;
   transition: all 100ms ease-in-out;
 }
@@ -215,12 +215,12 @@ const login = async (prov) => {
   background-color: transparent;
   border: none;
   outline: none;
-  border-radius: 12px;
+  border-radius: 5px;
 }
 
 .form-btn {
   width: 100%;
-  border-radius: 12px;
+  border-radius: 5px;
   font-weight: 600;
   text-align: center;
   display: flex;
@@ -247,7 +247,7 @@ const login = async (prov) => {
   align-items: center;
   width: 100%;
   height: 50px;
-  border-radius: 12px;
+  border-radius: 5px;
   transition: all 250ms ease;
   cursor: pointer;
   background-color: #f7f7f7;

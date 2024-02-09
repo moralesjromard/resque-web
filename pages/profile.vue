@@ -135,7 +135,7 @@
   }
 
   .profile-item {
-    border-radius: 12px;
+    border-radius: 5px;
     padding: 3rem;
     box-shadow: rgba(0, 0, 0, 0.04) 0px 5px 22px, rgba(0, 0, 0, 0.03) 0px 0px 0px 0.5px;
     display: flex;
@@ -176,7 +176,7 @@
 
   .change-profile-btn {
     height: fit-content;
-    border-radius: 12px;
+    border-radius: 5px;
     background: transparent;
     border: none;
     color: #1d1d1f;
@@ -206,7 +206,7 @@
     color: rgb(243, 38, 38);
     border: 1px solid rgb(243, 38, 38);
     font-weight: 600;
-    border-radius: 12px;
+    border-radius: 5px;
     transition: background-color 200ms ease-in-out;
     box-shadow: none;
   }
@@ -227,7 +227,7 @@
     margin-top: 1rem;
     font-weight: 600;
     font-size: 1rem;
-    border-radius: 12px;
+    border-radius: 5px;
   }
 
   .error-text {
