@@ -8,6 +8,12 @@ export default defineNuxtConfig({
     "@pinia-plugin-persistedstate/nuxt",
     'dayjs-nuxt'
   ],
+  runtimeConfig: {
+    public: {
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseKey: process.env.SUPABASE_KEY,
+    },
+  },
   css: [
     "primevue/resources/themes/lara-light-blue/theme.css",
   ],
