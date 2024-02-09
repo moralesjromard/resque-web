@@ -17,7 +17,7 @@
           <img src="/documents-img.svg" alt="">
         </div>
       </div>
-      <div class="login-history">
+      <!-- <div class="login-history">
         <p class="login-history-title">Login history</p>
         <div class="login-history-item">
           <p class="login-history-description-intro">Your last login was:</p>
@@ -29,7 +29,7 @@
           </p>
           <p class="login-history-date">March 01 2024 at 5:38:21 PM (GMT +8)</p>
         </div>
-      </div>
+      </div> -->
     </div>
   </MainLayout>
 </template>
